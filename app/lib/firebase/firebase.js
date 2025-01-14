@@ -1,6 +1,8 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore'; // Import Firestore
 
+// Konfiguracja Firebase
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -11,5 +13,11 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
+// Inicjalizacja Firebase
 const app = initializeApp(firebaseConfig);
+
+// Eksport instancji Auth
 export const auth = getAuth(app);
+
+// Eksport instancji Firestore
+export const db = getFirestore(app);

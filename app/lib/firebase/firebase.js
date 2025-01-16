@@ -15,6 +15,10 @@ const firebaseConfig = {
 
 // Inicjalizacja Firebase
 const app = initializeApp(firebaseConfig);
+// Wyłączenie logów Firebase
+if (typeof window !== 'undefined') {
+  window.firebaseLogLevel = 'silent';
+}
 
 // Eksport instancji Auth
 export const auth = getAuth(app);

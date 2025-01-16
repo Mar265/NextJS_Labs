@@ -19,7 +19,7 @@ function RegistrationForm() {
   } = useForm();
 
   const [registrationError, setRegistrationError] = useState('');
-  const [verificationMessage, setVerificationMessage] = useState(false); // Nowy stan do wyświetlenia komunikatu
+  const [verificationMessage, setVerificationMessage] = useState(false);
 
   const onSubmit = async (data) => {
     try {
@@ -38,13 +38,8 @@ function RegistrationForm() {
       // Wylogowanie użytkownika po rejestracji
       await signOut(auth);
 
-      // Ustawienie komunikatu o konieczności weryfikacji e-maila
+      // Wyświetlenie komunikatu o konieczności weryfikacji e-maila
       setVerificationMessage(true);
-
-      // Opcjonalne: automatyczne przekierowanie po kilku sekundach
-      setTimeout(() => {
-        router.push('/user/verify');
-      }, 5000); // 5 sekund
     } catch (error) {
       console.error('Błąd rejestracji:', error);
       if (error.code === 'auth/email-already-in-use') {
@@ -68,7 +63,7 @@ function RegistrationForm() {
             </h1>
             <p className="text-lg text-gray-600">
               Na Twój adres e-mail został wysłany link weryfikacyjny. Sprawdź
-              skrzynkę pocztową i potwierdź adres e-mail.
+              swoją skrzynkę pocztową i potwierdź adres e-mail.
             </p>
             <p className="mt-4 text-sm text-gray-500">
               Po potwierdzeniu możesz się zalogować.

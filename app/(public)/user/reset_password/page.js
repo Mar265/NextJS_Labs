@@ -18,7 +18,7 @@ function ResetPassword() {
     try {
       await sendPasswordResetEmail(auth, data.email);
       setMessage(
-        'Wysłano e-mail z linkiem do zresetowania hasła. Sprawdź swoją skrzynkę pocztową.'
+        'Jeśli adress e-mail znajduje sie w bazie. Wysłano e-mail z linkiem do zresetowania hasła. Sprawdź swoją skrzynkę pocztową.'
       );
       setErrorMessage('');
     } catch (error) {

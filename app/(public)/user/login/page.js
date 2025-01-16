@@ -5,7 +5,6 @@ import {
   setPersistence,
   signInWithEmailAndPassword,
   browserSessionPersistence,
-  sendPasswordResetEmail,
 } from 'firebase/auth';
 import { useForm } from 'react-hook-form';
 import { auth } from '@/app/lib/firebase/firebase';
@@ -17,29 +16,31 @@ function LoginForm() {
     register,
     handleSubmit,
     formState: { errors },
-    watch,
   } = useForm();
 
   const [loginError, setLoginError] = useState('');
-  const [resetMessage, setResetMessage] = useState('');
 
   const onSubmit = async (data) => {
     try {
+      // Walidacja danych wejściowych
+      const email = data.email.trim();
+      const password = data.password;
+
+      if (!email || !password) {
+        setLoginError('E-mail i hasło są wymagane.');
+        return;
+      }
+
       // Ustawienie sesji użytkownika
       await setPersistence(auth, browserSessionPersistence);
 
       // Próba zalogowania
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        data.email,
-        data.password
-      );
-
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
       // Sprawdzenie, czy email został zweryfikowany
       if (!user.emailVerified) {
-        console.log('E-mail niezweryfikowany. Przekierowanie na /user/verify');
+        setLoginError('Twój adres e-mail nie został jeszcze zweryfikowany.');
         router.push('/user/verify'); // Przekierowanie na stronę weryfikacji
         return;
       }
@@ -49,37 +50,32 @@ function LoginForm() {
     } catch (error) {
       console.error('Błąd logowania:', error);
 
-      // Mapowanie kodów błędów Firebase
-      const errorMessage = {
-        'auth/user-not-found': 'Użytkownik o podanym adresie e-mail nie istnieje.',
-        'auth/wrong-password': 'Podane hasło jest nieprawidłowe.',
-        'auth/too-many-requests': 'Zbyt wiele nieudanych prób logowania. Spróbuj ponownie później.',
-        'auth/network-request-failed': 'Wystąpił problem z połączeniem sieciowym.',
-        'auth/invalid-email': 'Podany adres e-mail jest nieprawidłowy.',
-        'auth/invalid-credential': 'Podane dane logowania są nieprawidłowe.',
-      };
-
-      setLoginError(errorMessage[error.code] || 'Wystąpił nieznany błąd. Spróbuj ponownie.');
-    }
-  };
-
-  const resetPassword = async (email) => {
-    if (!email) {
-      setResetMessage('Podaj poprawny adres e-mail, aby zresetować hasło.');
-      return;
-    }
-
-    try {
-      await sendPasswordResetEmail(auth, email);
-      setResetMessage(
-        'Jeśli e-mail istnieje w naszej bazie, otrzymasz link do resetowania hasła. Sprawdź swoją skrzynkę pocztową.'
-      );
-    } catch (error) {
-      console.error('Błąd resetowania hasła:', error);
-      const errorMessage = {
-        'auth/invalid-email': 'Podany adres e-mail jest nieprawidłowy.',
-      };
-      setResetMessage(errorMessage[error.code] || 'Wystąpił błąd. Spróbuj ponownie.');
+      // Obsługa błędów Firebase
+      switch (error.code) {
+        case 'auth/user-not-found':
+          setLoginError('Użytkownik o podanym adresie e-mail nie istnieje.');
+          break;
+        case 'auth/wrong-password':
+          setLoginError('Podane hasło jest nieprawidłowe.');
+          break;
+        case 'auth/too-many-requests':
+          setLoginError(
+            'Zbyt wiele nieudanych prób logowania. Spróbuj ponownie później.'
+          );
+          break;
+        case 'auth/network-request-failed':
+          setLoginError('Wystąpił problem z połączeniem sieciowym.');
+          break;
+        case 'auth/invalid-email':
+          setLoginError('Podany adres e-mail jest nieprawidłowy.');
+          break;
+        case 'auth/invalid-credential':
+          setLoginError('Podane dane logowania są nieprawidłowe. Sprawdź swój e-mail i hasło.');
+          break;
+        default:
+          setLoginError('Wystąpił nieznany błąd. Spróbuj ponownie.');
+          break;
+      }
     }
   };
 
@@ -92,9 +88,6 @@ function LoginForm() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {loginError && (
             <div className="text-red-500 text-sm font-medium">{loginError}</div>
-          )}
-          {resetMessage && (
-            <div className="text-blue-500 text-sm font-medium">{resetMessage}</div>
           )}
           <div>
             <label
@@ -148,7 +141,7 @@ function LoginForm() {
           </button>
           <div className="mt-4 flex flex-col items-center space-y-2">
             <button
-              onClick={() => resetPassword(watch('email'))}
+              onClick={() => router.push('/user/reset_password')} // Przeniesienie na stronę resetowania hasła
               type="button"
               className="text-sm text-blue-500 underline hover:text-blue-700">
               Zapomniałeś hasła? Zresetuj je

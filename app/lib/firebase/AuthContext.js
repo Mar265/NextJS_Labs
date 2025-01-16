@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation'; // Import routera
 import { onAuthStateChanged, signOut, sendEmailVerification } from 'firebase/auth';
 import { auth } from '@/app/lib/firebase/firebase'; // Upewnij się, że ścieżka do Firebase jest poprawna
 
@@ -11,6 +12,7 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null); // Przechowuje dane użytkownika
   const [loading, setLoading] = useState(true); // Status ładowania
+  const router = useRouter(); // Inicjalizacja routera
 
   // Monitorowanie stanu logowania
   useEffect(() => {
@@ -38,6 +40,7 @@ export const AuthProvider = ({ children }) => {
       await signOut(auth);
       setUser(null); // Wyczyszczenie użytkownika w stanie
       console.log('Pomyślnie wylogowano.');
+      router.push('/'); // Przekierowanie na stronę główną
     } catch (error) {
       console.error('Błąd podczas wylogowywania:', error);
     }

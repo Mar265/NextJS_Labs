@@ -141,6 +141,16 @@ function SideBar({ children }) {
             >
               Profile
             </Link>
+            
+          </li>
+          <li>
+            <Link
+              href="/user/cars"
+              className="block py-2 px-4 rounded-md hover:bg-gray-700 transition duration-300"
+            >
+              Cars
+            </Link>
+            
           </li>
           {user ? (
             <>

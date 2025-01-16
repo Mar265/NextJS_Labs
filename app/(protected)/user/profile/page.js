@@ -23,21 +23,24 @@ const ProfilePage = () => {
     const auth = getAuth();
     const currentUser = auth.currentUser;
 
-    // Sprawdź, czy użytkownik jest zalogowany i zweryfikowany
     if (currentUser) {
       if (!currentUser.emailVerified) {
-        router.push('/user/verify'); // Przekierowanie na stronę weryfikacji
+        console.log('Użytkownik niezweryfikowany, przekierowanie do /user/verify');
+        router.push('/user/verify');
         return;
       }
 
+      console.log('Użytkownik zweryfikowany:', currentUser);
       setFirebaseUser(currentUser);
       setUsername(currentUser.displayName || '');
       setPhotoURL(currentUser.photoURL || '');
+    } else {
+      console.log('Użytkownik niezalogowany, przekierowanie do /user/login');
+      router.push('/user/login');
     }
   }, [contextUser, router]);
 
   useEffect(() => {
-    // Pobierz dane adresowe z kolekcji Firestore
     const fetchAddress = async () => {
       if (!firebaseUser) return;
 
@@ -59,19 +62,26 @@ const ProfilePage = () => {
     fetchAddress();
   }, [firebaseUser]);
 
+  const handleZipCodeChange = (e) => {
+    const value = e.target.value.replace(/[^0-9]/g, ''); // Usuń wszystkie znaki niebędące cyframi
+    if (value.length <= 5) {
+      const formattedValue =
+        value.length > 2 ? `${value.slice(0, 2)}-${value.slice(2)}` : value; // Formatowanie XX-XXX
+      setZipCode(formattedValue);
+    }
+  };
+
   const handleSave = async (e) => {
     e.preventDefault();
 
     try {
       if (!firebaseUser) throw new Error('Brak użytkownika!');
-      
-      // Aktualizuj profil w Firebase Authentication
+
       await updateProfile(firebaseUser, {
         displayName: username,
         photoURL: photoURL,
       });
 
-      // Zapisz adres w Firestore
       await setDoc(
         doc(db, 'users', firebaseUser.uid),
         {
@@ -81,7 +91,7 @@ const ProfilePage = () => {
             zipCode,
           },
         },
-        { merge: true } // Zapisz dane z aktualizacją, aby nie nadpisać innych pól
+        { merge: true }
       );
 
       setSuccessMessage('Profil został zaktualizowany!');
@@ -217,9 +227,9 @@ const ProfilePage = () => {
               type="text"
               id="zipCode"
               value={zipCode}
-              onChange={(e) => setZipCode(e.target.value)}
+              onChange={handleZipCodeChange}
               className="w-full px-4 py-2 mt-1 rounded-md border border-gray-300 focus:ring-2 focus:ring-var(--primary-dark)"
-              placeholder="Wprowadź kod pocztowy"
+              placeholder="32-000"
             />
           </div>
           <button

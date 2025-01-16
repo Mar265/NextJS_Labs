@@ -2,36 +2,58 @@
 import { useAuth } from '@/app/lib/firebase/AuthContext';
 import { sendEmailVerification, getAuth } from 'firebase/auth';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function VerifyEmail() {
   const { user } = useAuth();
   const [verificationSent, setVerificationSent] = useState(false);
   const [emailVerified, setEmailVerified] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const auth = getAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!user) {
+      console.log('Brak zalogowanego użytkownika. Przekierowanie na logowanie...');
+      router.push('/user/login'); // Użytkownik niezalogowany
+    } else if (auth.currentUser?.emailVerified) {
+      console.log('E-mail już zweryfikowany. Przekierowanie na stronę główną.');
+      setEmailVerified(true);
+      router.push('/'); // E-mail zweryfikowany
+    }
+  }, [user, auth.currentUser, router]);
 
   const resendVerificationEmail = async () => {
     try {
-      if (auth.currentUser && !auth.currentUser.emailVerified) {
-        await sendEmailVerification(auth.currentUser); // Poprawne wywołanie funkcji
-        setVerificationSent(true);
-        console.log('E-mail weryfikacyjny został wysłany ponownie.');
+      if (!auth.currentUser) {
+        setErrorMessage('Brak zalogowanego użytkownika.');
+        return;
       }
+      await sendEmailVerification(auth.currentUser);
+      setVerificationSent(true);
+      setErrorMessage('');
     } catch (error) {
       console.error('Błąd podczas wysyłania e-maila weryfikacyjnego:', error);
+      setErrorMessage('Nie udało się wysłać e-maila weryfikacyjnego.');
     }
   };
 
   const checkVerificationStatus = async () => {
     try {
+      if (!auth.currentUser) {
+        setErrorMessage('Brak zalogowanego użytkownika.');
+        return;
+      }
       await auth.currentUser.reload();
       if (auth.currentUser.emailVerified) {
         setEmailVerified(true);
-        console.log('E-mail został zweryfikowany.');
+        router.push('/');
       } else {
-        console.log('E-mail nie jest jeszcze zweryfikowany.');
+        setErrorMessage('E-mail nie jest jeszcze zweryfikowany.');
       }
     } catch (error) {
       console.error('Błąd podczas sprawdzania weryfikacji e-maila:', error);
+      setErrorMessage('Nie udało się sprawdzić statusu weryfikacji.');
     }
   };
 
@@ -41,6 +63,9 @@ export default function VerifyEmail() {
         <h1 className="text-2xl font-bold text-var(--text-main) mb-6">
           Weryfikacja e-maila
         </h1>
+        {errorMessage && (
+          <p className="text-red-500 mb-4">{errorMessage}</p>
+        )}
         {!emailVerified ? (
           <>
             <p className="text-lg text-var(--text-dark) mb-4">

@@ -145,49 +145,46 @@
 
 // export default CarDetailsPage;
 
-// // statyczne generowanie stron
-'use client';
+// // statyczne generowanie stron'use client';
 
+import { useRouter } from 'next/navigation';
 import { doc, getDoc } from 'firebase/firestore';
+import { useEffect, useState } from 'react';
 import { db } from '@/app/lib/firebase/firebase';
 
-export async function getStaticPaths() {
-  // Pobierz listę dostępnych samochodów z Firestore
-  const carsRef = collection(db, 'cars');
-  const snapshot = await getDocs(carsRef);
+const CarDetailsPage = ({ params }) => {
+  const router = useRouter();
+  const [car, setCar] = useState(null);
+  const [errorMessage, setErrorMessage] = useState('');
 
-  const paths = snapshot.docs.map((doc) => ({
-    params: { id: doc.id },
-  }));
+  useEffect(() => {
+    const fetchCarDetails = async () => {
+      try {
+        const carRef = doc(db, 'cars', params.id); // Pobieranie ID samochodu z `params`
+        const carDoc = await getDoc(carRef);
 
-  return {
-    paths,
-    fallback: true, // Ustawienie true pozwala obsługiwać dynamiczne żądania
-  };
-}
-
-export async function getStaticProps({ params }) {
-  const carId = params.id;
-  const carRef = doc(db, 'cars', carId);
-  const carDoc = await getDoc(carRef);
-
-  if (!carDoc.exists()) {
-    return {
-      notFound: true,
+        if (carDoc.exists()) {
+          setCar(carDoc.data());
+        } else {
+          setErrorMessage('Samochód nie istnieje.');
+        }
+      } catch (error) {
+        console.error('Błąd podczas pobierania danych samochodu:', error);
+        setErrorMessage('Nie udało się załadować szczegółów samochodu.');
+      }
     };
+
+    fetchCarDetails();
+  }, [params.id]);
+
+  if (errorMessage) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-gradient-to-br from-var(--primary-dark) to-var(--primary)">
+        <h1 className="text-2xl font-bold text-red-500">{errorMessage}</h1>
+      </div>
+    );
   }
 
-  const carData = carDoc.data();
-
-  return {
-    props: {
-      car: { id: carDoc.id, ...carData },
-    },
-    revalidate: 10, // Opcjonalne: Odświeżaj dane co 10 sekund
-  };
-}
-
-const CarDetailsPage = ({ car }) => {
   if (!car) {
     return (
       <div className="h-screen flex items-center justify-center bg-gradient-to-br from-var(--primary-dark) to-var(--primary)">

@@ -43,3 +43,25 @@ node_modules/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+# Ignore node_modules
+node_modules/
+
+# Ignore build output
+.next/
+
+# Ignore environment files
+.env
+
+# Ignore Firebase hosting output
+firebase-debug.log
+firebase/
+
+# Ignore lock pliki tymczasowe
+package-lock.json
+yarn.lock
+
+# Ignore systemowe pliki
+.DS_Store
+Thumbs.db
+

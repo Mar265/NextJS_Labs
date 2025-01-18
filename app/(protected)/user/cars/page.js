@@ -206,7 +206,7 @@ const CarsPage = () => {
         </form>
 
         <h2 className="text-xl font-bold mt-8">Lista samochodów:</h2>
-        {/* <ul className="mt-4">
+        <ul className="mt-4">
           {cars.map((car) => (
             <li
               key={car.id}
@@ -216,7 +216,7 @@ const CarsPage = () => {
               {car.carMake} {car.model} ({car.yearOfManufacture})
             </li>
           ))}
-        </ul> */}
+        </ul>
       </div>
     </div>
   );

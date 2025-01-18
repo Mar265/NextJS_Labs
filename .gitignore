@@ -55,7 +55,6 @@ node_modules/
 
 # Ignore Firebase hosting output
 firebase-debug.log
-firebase/
 
 # Ignore lock pliki tymczasowe
 package-lock.json

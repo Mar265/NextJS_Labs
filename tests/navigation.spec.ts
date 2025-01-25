@@ -79,7 +79,7 @@ test.describe('E2E Tests for the Application', () => {
   test('resend verification email', async ({ page }) => {
     // Zaloguj się na konto bez zweryfikowanego e-maila
     await page.goto('http://localhost:3000/user/login');
-    await page.fill('input[name="email"]', 'vofyabarto@gufum.com');
+    await page.fill('input[name="email"]', 'mmkk14613@gmail.com');
     await page.fill('input[name="password"]', '123456');
     await page.click('button[type="submit"]');
     await expect(page).toHaveURL('http://localhost:3000/user/verify');

@@ -1,3 +1,8 @@
+Aplikacja powstała na zajęciach labolatoryjnych z przedmiotu FRAMEWORKI FRONT-ENDOWE 
+
+Live : https://reactlabs-mg.vercel.app
+Github: https://github.com/Mar265/NextJS_Labs
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
